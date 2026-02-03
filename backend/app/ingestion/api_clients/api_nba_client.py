@@ -9,6 +9,27 @@ class ApiNbaClient(RapidApiClient):
     """
     NBA API Free Data istatistik servisleri için güncellenmiş client.
     """
+    def get_player_gamelog(self, player_id: str) -> List[Dict[str, Any]]:
+        """
+        Bir oyuncunun geçmiş maç istatistiklerini (Gamelog) döner.
+        Kanıt: image_e333da.png -> 'GET Player/ Gamelog'
+        """
+        # Endpoint tahmini: RapidAPI standartlarına göre slug formatı
+        data = self._get("/nba-player-gamelog", params={"playerid": player_id})
+        
+        if isinstance(data, dict):
+            inner = data.get("response", {})
+            if isinstance(inner, dict):
+                # Olası response key'lerini dene
+                return (
+                    inner.get("Gamelog") or 
+                    inner.get("gamelog") or 
+                    inner.get("PlayerGamelog") or 
+                    []
+                )
+            if isinstance(inner, list):
+                return inner
+        return []
 
     def __init__(self) -> None:
         super().__init__(

@@ -20,7 +20,7 @@ router = APIRouter()
 @router.get("/", response_model=List[PlayerBase])
 def read_players(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
-    Tüm oyuncuların listesini döner. Frontend'de seçim kutusu (dropdown) için kullanılır.
+    Tüm oyuncuların listesini döner.
     """
     players = db.query(models.Player).offset(skip).limit(limit).all()
     return players
@@ -31,10 +31,6 @@ def get_player_prediction(
     game_date: date | None = None,
     db: Session = Depends(get_db),
 ) -> Any:
-    """
-    Bir oyuncunun bir sonraki maçında kendi ortalamasının üstüne çıkıp çıkmayacağına dair tahmini döner.
-    Şu an için ML modeli basit bir placeholder olarak uygulanmıştır.
-    """
     player = db.get(models.Player, player_id)
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
@@ -47,6 +43,7 @@ def get_player_prediction(
         prob_above_avg=result["prob_above_avg"],
         prediction_label=result["prediction_label"],
         rolling_pts_5=result["rolling_pts_5"],
+        season_avg_pts=result["season_avg_pts"],  # <--- EKSİK OLAN BU SATIRDI!
         rest_days=result["rest_days"],
         matchup_difficulty_score=result["matchup_difficulty_score"],
     )
@@ -58,15 +55,10 @@ def get_player_history(
     limit: int = 10,
     db: Session = Depends(get_db),
 ) -> Any:
-    """
-    Frontend grafiği için oyuncunun son X maçtaki performansını döner.
-    Şimdilik basit bir sorgu ve örnek şema ile yapılandırılmıştır.
-    """
     player = db.get(models.Player, player_id)
     if not player:
         raise HTTPException(status_code=404, detail="Player not found")
 
-    # Basitleştirilmiş örnek: Son maçları tarih sırasına göre çek
     q = (
         db.query(models.Game, models.PlayerBoxscore)
         .join(models.PlayerBoxscore, models.Game.id == models.PlayerBoxscore.game_id)
@@ -79,7 +71,7 @@ def get_player_history(
         PlayerHistoryPoint(
             game_date=game.date,
             points=box.points or 0,
-            predicted_above_avg=None,  # İleride gerçek tahmin sonuçlarıyla doldurulabilir
+            predicted_above_avg=None,
         )
         for game, box in q.all()
     ]
@@ -88,4 +80,3 @@ def get_player_history(
         player=PlayerBase.from_orm(player),
         history=list(reversed(history)),
     )
-
