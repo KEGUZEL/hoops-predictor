@@ -33,7 +33,7 @@ services:
       MONGO_DSN: mongodb://mongo:27017
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: development
-      RAPIDAPI_KEY: "BURAYA_KENDI_API_KEYINIZI_YAZIN"
+      RAPIDAPI_KEY: 6626ea432amsh00d3869219670d1p1f47bajsn0b16a1a9af77
     depends_on:
       - postgres
       - mongo

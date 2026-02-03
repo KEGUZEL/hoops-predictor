@@ -35,7 +35,8 @@ function PlayerPredictionCard({ player }) {
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       {data && (
-        <div className="space-y-2 text-sm">
+        <div className="space-y-3 text-sm">
+          {/* Tahmin Kısmı */}
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-emerald-400">
               {(data.prob_above_avg * 100).toFixed(1)}%
@@ -44,16 +45,32 @@ function PlayerPredictionCard({ player }) {
               {data.prediction_label}
             </span>
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Tarih: {data.game_date}
           </p>
-          <ul className="mt-2 space-y-1 text-xs text-slate-300">
-            <li>Son 5 maç ortalama sayı: {data.rolling_pts_5.toFixed(1)}</li>
-            <li>Dinlenme günü: {data.rest_days}</li>
-            <li>
-              Matchup zorluk skoru: {data.matchup_difficulty_score.toFixed(2)}
-            </li>
-          </ul>
+
+          <hr className="border-slate-800" />
+
+          {/* İstatistikler */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-slate-400">Sezon Ortalaması</p>
+              <p className="text-lg font-semibold text-white">
+                {data.season_avg_pts.toFixed(1)}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Son 5 Maç (Ort)</p>
+              <p className="text-lg font-semibold text-emerald-300">
+                {data.rolling_pts_5.toFixed(1)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-2 space-y-1 text-xs text-slate-400">
+            <p>Dinlenme günü: <span className="text-slate-200">{data.rest_days}</span></p>
+            <p>Zorluk skoru: <span className="text-slate-200">{data.matchup_difficulty_score.toFixed(2)}</span></p>
+          </div>
         </div>
       )}
     </div>
@@ -61,4 +78,3 @@ function PlayerPredictionCard({ player }) {
 }
 
 export default PlayerPredictionCard;
-

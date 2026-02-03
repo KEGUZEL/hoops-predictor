@@ -25,6 +25,7 @@ class PlayerPrediction(BaseModel):
     prob_above_avg: float
     prediction_label: str
     rolling_pts_5: float
+    season_avg_pts: float  # <--- YENİ EKLENDİ: Sezon Ortalaması
     rest_days: int
     matchup_difficulty_score: float
 
@@ -32,4 +33,3 @@ class PlayerPrediction(BaseModel):
 class PlayerHistoryResponse(BaseModel):
     player: PlayerBase
     history: List[PlayerHistoryPoint]
-

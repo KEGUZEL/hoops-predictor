@@ -1,45 +1,63 @@
-"""
-NBA API Free Data endpoint'lerini test etmek için script.
-"""
-from app.ingestion.api_clients.base import RapidApiClient
-from app.core.config import get_settings
-import json
-
+from app.ingestion.api_clients.api_nba_client import ApiNbaClient
 
 def test_endpoints():
-    from app.ingestion.api_clients.api_nba_client import ApiNbaClient
-    
     client = ApiNbaClient()
     
-    # Test edilecek endpoint'ler
-    endpoints = [
-        "/nba-leagues",
-        "/nba-league-info",
-        "/nba-sport-info",
+    # Test için geçerli bir tarih (Geçmiş bir tarih seçelim ki maç olsun)
+    test_params = {"date": "2024-01-20"} 
+    
+    candidates = [
+        # --- Olasılık 1: Tireli İsimler ---
+        "/nba-fixtures",
+        "/nba-schedule",
+        "/nba-games",
         "/nba-scoreboard",
-        "/nba-player-stats",
-        "/nba-game-details",
-        "/nba-team-list",
-        "/nba-team-info",
-        "/nba-standings",
+        "/nba-livescore",
+        "/nba-results",
+        
+        # --- Olasılık 2: Tiresiz İsimler ---
+        "/nbafixtures",
+        "/nbaschedule",
+        "/nbagames",
+        "/nbascoreboard",
+        "/nbalivescore",
+        
+        # --- Olasılık 3: Sade İsimler ---
+        "/fixtures",
+        "/schedule",
+        "/games",
+        "/matches",
+        "/scores",
+        
+        # --- Olasılık 4: 'List' eki ---
+        "/nba-list-games",
+        "/nba-game-list"
     ]
     
-    print("Testing NBA API Free Data endpoints...")
+    print(f"Testing endpoints with params: {test_params}...")
     print("=" * 60)
     
-    for endpoint in endpoints:
+    for endpoint in candidates:
         try:
-            data = client._get(endpoint)
-            print(f"✅ {endpoint}")
-            print(f"   Response type: {type(data)}")
+            # Parametre ile istek atıyoruz
+            data = client._get(endpoint, params=test_params)
+            
+            # Eğer buraya gelirse hata almamış demektir
+            print(f"🌟 {endpoint} -> ÇALIŞTI! (Data tipi: {type(data)})")
+            
+            # İçinde veri var mı diye kısaca bakalım
             if isinstance(data, dict):
-                print(f"   Keys: {list(data.keys())[:5]}")
-            print()
+                print(f"   Keys: {list(data.keys())[:3]}")
+            elif isinstance(data, list) and len(data) > 0:
+                print(f"   İlk eleman: {data[0]}")
+                
         except Exception as e:
-            print(f"❌ {endpoint}")
-            print(f"   Error: {str(e)[:100]}")
-            print()
-
+            # Sadece 404 olmayan hataları veya başarılı sonuçları önemsiyoruz
+            error_msg = str(e)
+            if "404" in error_msg:
+                pass # 404'leri ekrana basıp kalabalık yapmayalım
+            else:
+                print(f"❓ {endpoint} -> Farklı Tepki: {error_msg}")
 
 if __name__ == "__main__":
     test_endpoints()
