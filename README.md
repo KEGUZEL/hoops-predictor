@@ -1,21 +1,83 @@
-HoopsPredictor: AI-Driven Performance Analyst
-============================================
+# 🏀 Hoops Predictor - AI Destekli NBA Analiz Sistemi
 
-Bu proje, NBA oyuncu ve takımlarının performansını veri odaklı ve yapay zeka destekli şekilde analiz etmek için tasarlanmış tam yığın (full‑stack) bir uygulamadır.
+Hoops Predictor, NBA oyuncularının performanslarını analiz eden, sakatlık risklerini değerlendiren ve yapay zeka destekli maç tahminleri sunan kapsamlı bir analiz platformudur.
 
-Ana bileşenler:
+Backend tarafında **FastAPI** ve Python, Frontend tarafında **React** ve Vite, altyapı olarak **Docker** kullanılmaktadır.
 
-- Backend: FastAPI (Python) + ML (pandas, scikit-learn / XGBoost)
-- Frontend: React tabanlı dashboard (Recharts ile görselleştirme)
-- Veri Kaynakları: RapidAPI üzerinden çeşitli NBA istatistik API'leri ve web scraping ile sakatlık/haber verileri
-- Veritabanları: PostgreSQL (ilişkisel veriler) + MongoDB veya Redis (anlık sakatlık, yorgunluk vb.)
-- DevOps: Docker, Docker Compose, GitHub Actions tabanlı CI/CD, logging & monitoring
+---
 
-Proje yapısı (özet):
+## 🚀 Özellikler
 
-- backend/ : FastAPI uygulaması, ingestion job'ları ve ML modeli
-- frontend/ : React dashboard arayüzü
-- infra/ : Docker Compose, Dockerfile örnekleri ve CI/CD yapılandırmaları
+* **📊 Oyuncu Analizi:** Geçmiş maç verilerine dayalı detaylı istatistikler.
+* **🤖 AI Tahminleri:** Makine öğrenmesi ile oyuncu performans tahminleri.
+* **🏥 Sakatlık Takibi:** Güncel sakatlık raporları ve risk analizleri (ESPN & Rotowire entegrasyonu).
+* **🛡️ Takım Risk Paneli:** Takımların genel sağlık ve performans risk durumu.
+* **⚡ Hızlı ve Modern:** FastAPI ve React ile geliştirilmiş yüksek performanslı mimari.
 
-Kurulum ve çalıştırma adımları ileride ayrıntılı olarak eklenecektir.
+---
 
+## 🛠 Gereksinimler
+
+Projeyi çalıştırmadan önce bilgisayarınızda şunların kurulu olması gerekir:
+
+* [Docker Desktop](https://www.docker.com/products/docker-desktop) (Önerilen)
+* [Python 3.10+](https://www.python.org/)
+* [Node.js 18+](https://nodejs.org/)
+* **RapidAPI Hesabı** (Verileri çekmek için)
+
+---
+
+## 🔑 Kurulum Öncesi: API Anahtarı (ÇOK ÖNEMLİ!) ⚠️
+
+Bu proje **API-NBA** servisini kullanır. API'nin çalışması için sadece key almak yetmez, **abone olmanız şarttır**.
+
+1.  [RapidAPI - API-NBA Pricing](https://rapidapi.com/api-sports/api/api-nba/pricing) sayfasına gidin.
+2.  **Basic (Free)** paketi altındaki **"Subscribe"** butonuna tıklayın. (Bunu yapmazsanız `403 Forbidden` hatası alırsınız).
+3.  Abonelik tamamlandıktan sonra **Endpoints** sekmesinden `X-RapidAPI-Key` değerinizi kopyalayın.
+
+---
+
+## ⚙️ Kurulum ve Çalıştırma
+
+### 1. Projeyi Klonlayın
+
+```bash
+git clone [https://github.com/kullaniciadi/hoops-predictor.git](https://github.com/kullaniciadi/hoops-predictor.git)
+cd hoops-predictor
+
+backend klasörünün içine .env adında bir dosya oluşturun ve aşağıdaki bilgileri yapıştırın:
+
+Dosya: backend/.env
+
+# RapidAPI Ayarları
+RAPIDAPI_KEY=BURAYA_RAPIDAPI_KEYINIZI_YAPISTIRIN
+RAPIDAPI_HOST=api-nba-v1.p.rapidapi.com
+
+# Veritabanı Ayarları (Docker kullanacaksanız değiştirmeyin)
+MONGODB_URL=mongodb://mongo:27017/hoops_db
+SECRET_KEY=supersecretkey
+PROJECT_NAME=HoopsPredictor
+
+3. Docker ile Çalıştırma (Önerilen)
+Tüm sistemi (Backend, Frontend ve Veritabanı) tek komutla ayağa kaldırmak için ana dizinde şu komutu çalıştırın:
+
+Bash
+
+docker-compose -f infra/docker-compose.yml up --build
+
+Kurulum bittiğinde şu adreslerden erişebilirsiniz:
+
+Frontend (Uygulama): http://localhost:5173
+
+Backend (API Docs): http://localhost:8000/docs
+
+
+cd backend
+python -m venv venv
+# Windows: venv\Scripts\activate | Mac/Linux: source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+cd frontend
+npm install
+npm run dev
