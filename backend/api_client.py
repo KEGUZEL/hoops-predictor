@@ -50,6 +50,14 @@ def fetch_nba_data(endpoint, params=None):
 
     try:
         response = requests.get(url, headers=headers, params=params)
+        
+        # --- CASUS KOD BAŞLANGICI ---
+        if response.status_code == 403:
+            print("\n🚨 403 HATASI DETAYI (Bunu bana gönder):")
+            print(f"Mesaj: {response.text}") # RapidAPI'nin gönderdiği gizli mesajı yazdır
+            print(f"Giden Key (İlk 5 hane): {headers['X-RapidAPI-Key'][:5]}...") 
+        # --- CASUS KOD BİTİŞİ ---
+
         response.raise_for_status() # Hata varsa durdur
         
         data = response.json()

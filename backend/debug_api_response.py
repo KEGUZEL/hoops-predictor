@@ -1,40 +1,50 @@
-# Dosya: backend/debug_api_response.py
+import requests
+import os
+from dotenv import load_dotenv
 
-import json
-from app.ingestion.api_clients.api_nba_client import ApiNbaClient
+# .env yükle
+load_dotenv()
 
-def inspect_raw_response():
-    print("--- API TEŞHİS BAŞLIYOR ---")
-    client = ApiNbaClient()
+def casus_test():
+    print("--- 🕵️ API CASUS TESTİ BAŞLIYOR ---")
     
-    # Geçmiş ve oynanmış bir tarih seçelim ki kesin veri olsun (Örn: 20 Ocak 2024)
-    test_date = "20240120" 
+    # 1. Key Kontrolü
+    api_key = os.getenv("RAPIDAPI_KEY")
+    if not api_key:
+        print("❌ HATA: .env dosyasında Key BULUNAMADI.")
+        return
     
-    print(f"Hedef Endpoint: /nba-scoreboard-by-date")
-    print(f"Parametre: date={test_date}")
+    print(f"🔑 Kullanılan Key: {api_key[:5]}...{api_key[-4:]}")
+
+    # 2. Direkt İstek (Aracı dosya kullanmadan)
+    url = "https://api-nba-v1.p.rapidapi.com/games"
     
-    # Client içindeki _get metodunu kullanarak ham veriyi çekiyoruz
-    try:
-        raw_data = client._get("/nba-scoreboard-by-date", params={"date": test_date})
-        
-        print("\n--- HAM VERİ TÜRÜ ---")
-        print(type(raw_data))
-        
-        print("\n--- HAM VERİ İÇERİĞİ (İLK 1000 KARAKTER) ---")
-        # JSON formatında düzenli görelim
-        formatted_json = json.dumps(raw_data, indent=2, ensure_ascii=False)
-        print(formatted_json[:2000]) # Çok uzunsa terminali kilitlemesin diye kesiyoruz
-        
-        print("\n--- ANAHTARLAR (KEYS) ---")
-        if isinstance(raw_data, dict):
-            print(raw_data.keys())
-        elif isinstance(raw_data, list) and len(raw_data) > 0:
-            print(f"Liste uzunluğu: {len(raw_data)}")
-            if isinstance(raw_data[0], dict):
-                print(f"Listedeki ilk öğenin keyleri: {raw_data[0].keys()}")
-                
-    except Exception as e:
-        print(f"\n!!! HATA OLUŞTU !!!: {e}")
+    # DİKKAT: Tarih formatı YYYY-MM-DD olmalı
+    params = {"date": "2024-01-20"}
+    
+    headers = {
+        "X-RapidAPI-Key": api_key.strip(), # Boşlukları temizle
+        "X-RapidAPI-Host": "api-nba-v1.p.rapidapi.com"
+    }
+
+    print("\n🌐 İstek gönderiliyor...")
+    response = requests.get(url, headers=headers, params=params)
+
+    # 3. SONUÇ ANALİZİ
+    print(f"📡 Durum Kodu (Status Code): {response.status_code}")
+
+    if response.status_code == 200:
+        print("✅ BAŞARILI! Bağlantı sağlandı. Sorun çözülmüş.")
+        print(f"Gelen Veri Boyutu: {len(response.text)} karakter")
+    elif response.status_code == 403:
+        print("⛔ ERİŞİM YASAK (403)!")
+        print("👇 İŞTE SEBEBİ (Bunu bana oku):")
+        print("------------------------------------------------")
+        print(response.text)  # <--- BURASI ÇOK ÖNEMLİ
+        print("------------------------------------------------")
+    else:
+        print("⚠️ Beklenmedik Hata:")
+        print(response.text)
 
 if __name__ == "__main__":
-    inspect_raw_response()
+    casus_test()
