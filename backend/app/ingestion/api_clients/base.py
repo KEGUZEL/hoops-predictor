@@ -25,9 +25,24 @@ class RapidApiClient(ABC):
 
     def _get(self, path: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
         url = f"{self.base_url}/{path.lstrip('/')}"
-        resp = requests.get(url, headers=self._headers, params=params, timeout=20)
-        resp.raise_for_status()
-        return resp.json()
+        
+        max_retries = 5
+        base_wait = 2
+
+        for i in range(max_retries):
+            resp = requests.get(url, headers=self._headers, params=params, timeout=20)
+            
+            if resp.status_code == 429:
+                wait_time = base_wait * (2 ** i)
+                print(f"⚠️ 429 Rate Limit. Retrying in {wait_time}s... ({i+1}/{max_retries})")
+                import time
+                time.sleep(wait_time)
+                continue
+                
+            resp.raise_for_status()
+            return resp.json()
+            
+        raise Exception("Max retries exceeded for 429 Rate Limit")
 
     @abstractmethod
     def ping(self) -> bool:
