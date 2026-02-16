@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-
 from app.routers import players, teams, health
 from app.core.logging_config import setup_logging
 
